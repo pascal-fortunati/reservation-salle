@@ -262,10 +262,6 @@ npm run build    # Build de production
 npm run preview  # Prévisualisation du build
 ```
 
-## Auteurs
-
-TechSpace Solutions
-
 ## Licence
 
 Ce projet est un projet académique développé dans un cadre pédagogique.
