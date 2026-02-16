@@ -1,0 +1,410 @@
+openapi: 3.0.3
+info:
+  title: Réservation de salle
+  version: 1.0.0
+servers:
+  - url: http://localhost:4000
+    description: Local
+
+tags:
+  - name: Auth
+  - name: Users
+  - name: Planning
+  - name: Reservations
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]
+
+    RegisterRequest:
+      type: object
+      properties:
+        nom:
+          type: string
+        prenom:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+      required: [nom, prenom, email, password]
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required: [email, password]
+
+    AuthUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+      required: [id, email]
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/AuthUser'
+      required: [token, user]
+
+    ProfileUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        nom:
+          type: string
+        prenom:
+          type: string
+        email:
+          type: string
+          format: email
+        created_at:
+          type: string
+      required: [id, nom, prenom, email, created_at]
+
+    ProfileResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/ProfileUser'
+      required: [user]
+
+    PlanningReservation:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        date:
+          type: string
+          example: '2026-02-09'
+        start_time:
+          type: string
+          example: '10:00'
+        end_time:
+          type: string
+          example: '11:00'
+        object:
+          type: string
+        nom:
+          type: string
+        prenom:
+          type: string
+      required: [id, user_id, date, start_time, end_time, object, nom, prenom]
+
+    PlanningWeekResponse:
+      type: object
+      properties:
+        weekStart:
+          type: string
+          example: '2026-02-09'
+        weekEnd:
+          type: string
+          example: '2026-02-13'
+        reservations:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlanningReservation'
+      required: [weekStart, weekEnd, reservations]
+
+    CreateReservationRequest:
+      type: object
+      properties:
+        date:
+          type: string
+          example: '2026-02-09'
+        start_time:
+          type: string
+          example: '10:00'
+        end_time:
+          type: string
+          example: '11:00'
+        object:
+          type: string
+          maxLength: 255
+      required: [date, start_time, end_time, object]
+
+    CreateReservationResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+      required: [id]
+
+    UpdateReservationRequest:
+      type: object
+      properties:
+        object:
+          type: string
+          maxLength: 255
+        start_time:
+          type: string
+          example: '10:00'
+        end_time:
+          type: string
+          example: '11:00'
+      required: [object]
+
+    DeleteReservationResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+      required: [ok]
+
+paths:
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Création de compte
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Compte créé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                required: [id]
+        '400':
+          description: Entrée invalide
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Connexion (retourne JWT)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Auth OK
+          headers:
+            x-auth-token:
+              description: JWT renouvelé (session glissante)
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Identifiants invalides
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users/profile:
+    get:
+      tags: [Users]
+      summary: Consultation profil (JWT)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Profil
+          headers:
+            x-auth-token:
+              description: JWT renouvelé (session glissante)
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '401':
+          description: Non authentifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/planning/week:
+    get:
+      tags: [Planning]
+      summary: Planning hebdomadaire
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: date
+          required: false
+          schema:
+            type: string
+            example: '2026-02-09'
+          description: Date de référence (YYYY-MM-DD)
+      responses:
+        '200':
+          description: Planning
+          headers:
+            x-auth-token:
+              description: JWT renouvelé (session glissante)
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanningWeekResponse'
+        '401':
+          description: Non authentifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/reservations:
+    post:
+      tags: [Reservations]
+      summary: Créer réservation
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReservationRequest'
+      responses:
+        '201':
+          description: Réservation créée
+          headers:
+            x-auth-token:
+              description: JWT renouvelé (session glissante)
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateReservationResponse'
+        '400':
+          description: Créneau passé / validation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Double réservation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/reservations/{id}:
+    put:
+      tags: [Reservations]
+      summary: Modifier réservation (objet + horaires)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateReservationRequest'
+      responses:
+        '200':
+          description: Réservation modifiée
+          headers:
+            x-auth-token:
+              description: JWT renouvelé (session glissante)
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+        '403':
+          description: Pas propriétaire / créneau passé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Non authentifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [Reservations]
+      summary: Annuler réservation
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Réservation supprimée
+          headers:
+            x-auth-token:
+              description: JWT renouvelé (session glissante)
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteReservationResponse'
+        '403':
+          description: Pas propriétaire / créneau passé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Non authentifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
