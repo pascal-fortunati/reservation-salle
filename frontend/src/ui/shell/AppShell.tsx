@@ -229,11 +229,11 @@ export function AppShell() {
       </div>
 
       {/* Sidebar */}
-      <div className="drawer-side z-20">
+      <div className="drawer-side !top-16 z-10">
         <label htmlFor="main-drawer" className="drawer-overlay"></label>
-        <aside className="w-72 sm:w-80 bg-base-100 border-r border-base-300 flex flex-col h-[calc(100vh-4rem)] mt-5 overflow-y-auto">
+        <aside className="w-72 sm:w-80 bg-base-100 border-r border-base-300 flex flex-col h-[calc(100vh-4rem)] overflow-y-auto">
           {/* Header Sidebar */}
-          <Link to="/" className="flex items-center justify-center">
+          <Link to="/" className="flex items-center justify-center mt-5 ">
             <img
               src="/l_reservsalle.png"
               alt="Logo"
