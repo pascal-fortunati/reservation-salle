@@ -218,7 +218,7 @@ export function AppShell() {
         </main>
 
         {/* Footer */}
-        <footer className="footer footer-center p-4 bg-base-100 text-base-content border-t border-base-300 lg:ml-80 lg:w-[calc(100%-20rem)]">
+        <footer className="footer footer-center p-4 bg-base-100 text-base-content border-t border-base-300">
           <aside>
             <p className="text-sm opacity-70">
               © {new Date().getFullYear()} TechSpace - Système de réservation de
@@ -231,17 +231,15 @@ export function AppShell() {
       {/* Sidebar */}
       <div className="drawer-side z-20">
         <label htmlFor="main-drawer" className="drawer-overlay"></label>
-        <aside className="w-72 sm:w-80 bg-base-100 border-r border-base-300 flex flex-col h-[calc(100vh-4rem)] mt-16 overflow-y-auto">
+        <aside className="w-72 sm:w-80 bg-base-100 border-r border-base-300 flex flex-col h-[calc(100vh-4rem)] mt-5 overflow-y-auto">
           {/* Header Sidebar */}
-          <div className="p-4 sm:p-6 border-b border-base-300">
-            <Link to="/" className="flex items-center justify-center">
-              <img
-                src="/l_reservsalle.png"
-                alt="Logo"
-                className="h-16 sm:h-20 lg:h-24 w-auto"
-              />
-            </Link>
-          </div>
+          <Link to="/" className="flex items-center justify-center">
+            <img
+              src="/l_reservsalle.png"
+              alt="Logo"
+              className="h-16 sm:h-20 lg:h-24 w-auto"
+            />
+          </Link>
 
           {isAuthenticated ? (
             <>
@@ -257,11 +255,10 @@ export function AppShell() {
                   <li className="w-full">
                     <Link
                       to="/dashboard"
-                      className={`flex items-center gap-3 w-full justify-start ${
-                        isActive("/dashboard")
-                          ? "active bg-primary text-primary-content"
-                          : ""
-                      }`}
+                      className={`flex items-center gap-3 w-full justify-start ${isActive("/dashboard")
+                        ? "active bg-primary text-primary-content"
+                        : ""
+                        }`}
                     >
                       <CalendarMonthIcon fontSize="small" />
                       <span className="flex-1">Planning</span>
@@ -273,11 +270,10 @@ export function AppShell() {
                   <li className="w-full">
                     <Link
                       to="/profile"
-                      className={`flex items-center gap-3 w-full justify-start ${
-                        isActive("/profile")
-                          ? "active bg-primary text-primary-content"
-                          : ""
-                      }`}
+                      className={`flex items-center gap-3 w-full justify-start ${isActive("/profile")
+                        ? "active bg-primary text-primary-content"
+                        : ""
+                        }`}
                     >
                       <PersonIcon fontSize="small" />
                       <span className="flex-1">Mon profil</span>
